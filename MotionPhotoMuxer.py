@@ -6,6 +6,7 @@ from pathlib import Path
 import glob
 import subprocess
 from motionphoto import create_motion_photo
+import os
 
 def validate_directory(dir: Path):
     if not dir.exists():
@@ -44,7 +45,11 @@ def convert(photo_path: Path, video_path: Path, output_path: Path):
     :param video_path: path to the video
     :return: None
     """
-    create_motion_photo(photo_path, video_path, output_path)
+    create_motion_photo(
+        image=photo_path,
+        video=video_path,
+        motion=Path(os.path.join(output_path, f'MV{os.path.basename(photo_path)}'))
+    )
 
 def matching_video(photo_path: Path) -> Path:
     base = str(photo_path.with_suffix(""))
@@ -92,7 +97,7 @@ def main(args):
                 processed_files.add(pair[1])
 
         if args.copyall:
-            all_files = set(file for file in args.dir.iterdir() if file.is_file())
+            all_files = set(file for file in Path(args.dir).rglob('*') if file.is_file())
             remaining_files = all_files - processed_files
 
             logging.info("Found {} remaining files to copy.".format(len(remaining_files)))
